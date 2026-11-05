@@ -25,7 +25,7 @@ export const site = {
 export const block1: HeroBlock = {
   id: 1,
   kind: "hero",
-  pretitle: "Nutrition du sport",
+  pretitle: "Nutritionniste du sport",
   line1: "Construis ta stratégie.",
   line2: "Atteins tes objectifs.",
   lede: "Une approche nutritionnelle conçue pour la haute performance et utilisée auprès de combattants professionnels, d’athlètes olympiques et de sportifs de haut niveau. Pensée pour mieux performer, récupérer plus vite et obtenir des résultats à la hauteur de l’engagement.",
