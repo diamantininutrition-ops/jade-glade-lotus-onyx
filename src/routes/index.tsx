@@ -19,7 +19,7 @@ const description =
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title },
+      { title: "Nutritionniste du sport | STRONGDIET" },
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
