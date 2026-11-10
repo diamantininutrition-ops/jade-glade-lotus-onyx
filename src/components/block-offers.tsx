@@ -73,7 +73,7 @@ export function BlockOffers() {
               <path d="M12 8v4.2l2.6 1.6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             </svg>
             <p className="font-display text-lg text-ink-fg sm:text-xl">
-              1 heure — <span className="text-2xl font-semibold sm:text-3xl">79 €</span>
+              1 heure — <span className="text-2xl font-semibold sm:text-3xl">75 €</span>
             </p>
           </div>
           <a
