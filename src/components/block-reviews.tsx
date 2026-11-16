@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 const GOOGLE_LISTING = "https://www.google.com/maps?cid=3171788461368867703";
 
 const reviews = [
@@ -5,13 +7,13 @@ const reviews = [
     quote:
       "Un grand merci à Valentin Diamantini pour son excellent accompagnement dans mes préparations sportives, aussi bien en trail qu’en course sur route. Ses conseils m’ont permis d’optimiser mon alimentation, aussi bien sur les courtes que sur les longues distances, tout en travaillant sur la gestion de mon poids. Un professionnel passionné, à l’écoute, disponible et toujours de bon conseil. Un suivi personnalisé et de qualité que je recommande les yeux fermés !",
     name: "Benjamin P.",
-    sport: "trail et course sur route",
+    sport: "trail et course sur route, ex champion d’Europe de kick boxing",
   },
   {
     quote:
       "On m’a recommandé Valentin pour mon suivi diététique dans le sport de haut niveau (Championnat d’Europe, Championnats du monde, Jeux Olympiques). Je peux le recommander à mon tour ! C’est un professionnel qui est à l’écoute et donne beaucoup d’explications et de recommandations concrètes pour s’améliorer. Le suivi est très complet ! J’ai vu l’évolution et de réels résultats. Merci !",
     name: "Auriana L.",
-    sport: "sportive de haut niveau",
+    sport: "athlète olympique",
   },
   {
     quote:
@@ -48,7 +50,70 @@ function Stars() {
   );
 }
 
+function Arrow({ dir }: { dir: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <path
+        d={dir === "left" ? "M14.5 5.5 8 12l6.5 6.5" : "M9.5 5.5 16 12l-6.5 6.5"}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function metrics(el: HTMLElement) {
+  const card = el.querySelector("li");
+  if (!card) return { step: 0, visible: 1 };
+  const gap = parseFloat(getComputedStyle(el).columnGap || "0") || 0;
+  const step = card.getBoundingClientRect().width + gap;
+  const visible = step > 0 ? Math.max(1, Math.round((el.clientWidth + gap) / step)) : 1;
+  return { step, visible };
+}
+
 export function BlockReviews() {
+  const scrollerRef = useRef<HTMLUListElement>(null);
+  const [active, setActive] = useState(0);
+  const [visible, setVisible] = useState(1);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const sync = () => {
+      const { step, visible: count } = metrics(el);
+      if (!step) return;
+      const maxStart = Math.max(0, reviews.length - count);
+      const start = Math.max(0, Math.min(Math.round(el.scrollLeft / step), maxStart));
+      setActive(start);
+      setVisible(count);
+    };
+
+    sync();
+    el.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => {
+      el.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
+  function go(index: number) {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const { step, visible: count } = metrics(el);
+    if (!step) return;
+    const maxStart = Math.max(0, reviews.length - count);
+    const next = Math.max(0, Math.min(index, maxStart));
+    el.scrollTo({ left: next * step, behavior: "smooth" });
+    setActive(next);
+  }
+
+  const maxStart = Math.max(0, reviews.length - visible);
+
   return (
     <section className="bg-paper px-5 py-16 text-ink-fg sm:px-8 sm:py-20">
       <div className="mx-auto max-w-6xl">
@@ -57,22 +122,70 @@ export function BlockReviews() {
         </h2>
         <div className="mx-auto mt-6 h-px w-16 bg-gold lg:w-36" aria-hidden="true" />
 
-        <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
-          {reviews.map((review) => (
-            <li
-              key={review.name}
-              className="flex h-full flex-col rounded-2xl border border-hairline-dark bg-snow p-6"
-            >
-              <Stars />
-              <p className="mt-4 text-sm leading-relaxed sm:text-base">{review.quote}</p>
-              <p className="mt-auto pt-5 text-xs text-muted sm:text-sm">
-                <span className="font-semibold text-ink-fg">{review.name}</span>
-                <span aria-hidden="true"> · </span>
-                {review.sport}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <div className="relative mt-10 lg:px-14">
+          <button
+            type="button"
+            className="absolute left-0 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-gold bg-snow text-ink disabled:opacity-30 lg:grid"
+            aria-label="Avis précédent"
+            disabled={active === 0}
+            onClick={() => go(active - 1)}
+          >
+            <Arrow dir="left" />
+          </button>
+
+          <ul
+            ref={scrollerRef}
+            className="flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-5 [&::-webkit-scrollbar]:hidden"
+            aria-label="Avis de sportifs"
+          >
+            {reviews.map((review) => (
+              <li
+                key={review.name}
+                className="flex w-[calc(100%-2.75rem)] shrink-0 snap-always snap-start lg:w-[calc((100%-2.5rem)/3)]"
+              >
+                <article className="flex h-full w-full flex-col rounded-2xl border border-hairline-dark bg-snow p-6">
+                  <Stars />
+                  <p className="mt-4 text-sm leading-relaxed sm:text-base">{review.quote}</p>
+                  <p className="mt-auto pt-5 text-xs text-muted sm:text-sm">
+                    <span className="font-semibold text-ink-fg">{review.name}</span>
+                    <span aria-hidden="true"> · </span>
+                    {review.sport}
+                  </p>
+                </article>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            type="button"
+            className="absolute right-0 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-gold bg-snow text-ink disabled:opacity-30 lg:grid"
+            aria-label="Avis suivant"
+            disabled={active >= maxStart}
+            onClick={() => go(active + 1)}
+          >
+            <Arrow dir="right" />
+          </button>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-2">
+          {reviews.map((review, index) => {
+            const shown = index >= active && index < active + visible;
+            return (
+              <button
+                key={review.name}
+                type="button"
+                className={
+                  shown
+                    ? "size-2.5 rounded-full bg-gold"
+                    : "size-2 rounded-full bg-ink/20"
+                }
+                aria-label={`Afficher l’avis de ${review.name}`}
+                aria-current={index === active ? "true" : undefined}
+                onClick={() => go(index)}
+              />
+            );
+          })}
+        </div>
 
         <p className="mt-10 text-center">
           <a
