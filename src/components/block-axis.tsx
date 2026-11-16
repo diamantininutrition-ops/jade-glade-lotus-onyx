@@ -6,6 +6,7 @@ import {
   IconScale,
   IconTrophy,
 } from "@/components/axis-icons";
+import { BlockReviews } from "@/components/block-reviews";
 import { block2, block3, type AxisItem } from "@/lib/site-content";
 
 const icons: Record<AxisItem["icon"], ComponentType> = {
@@ -68,6 +69,8 @@ export function BlockAxis() {
           <Bolt flip />
         </div>
       </div>
+
+      <BlockReviews />
 
       <div className="bg-ink px-4 py-14 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-6xl rounded-[2rem] border border-gold bg-snow px-3 py-4 sm:px-6 lg:rounded-[2.75rem] lg:px-4 lg:py-10">
