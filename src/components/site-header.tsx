@@ -28,19 +28,17 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-white text-ink">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[4.5rem] sm:gap-4 sm:px-8">
-        {onHome ? (
-          <button
-            type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex min-w-0 items-center gap-2 text-left sm:gap-3"
-          >
-            <Brand />
-          </button>
-        ) : (
-          <a href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <Brand />
-          </a>
-        )}
+        <a
+          href="https://www.strongdiet-nutrition.com/"
+          className="flex min-w-0 items-center gap-2 sm:gap-3"
+          onClick={(event) => {
+            if (!onHome) return;
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          <Brand />
+        </a>
         <nav className="ml-auto flex shrink-0 items-center gap-2 sm:gap-5">
           <button
             type="button"
